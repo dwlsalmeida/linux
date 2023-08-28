@@ -13,6 +13,7 @@
 
 #![no_std]
 #![feature(coerce_unsized)]
+#![feature(const_refs_to_cell)]
 #![feature(dispatch_from_dyn)]
 #![feature(new_uninit)]
 #![feature(receiver_trait)]
@@ -29,6 +30,7 @@ extern crate self as kernel;
 pub mod alloc;
 mod build_assert;
 pub mod device;
+pub mod driver;
 pub mod error;
 pub mod init;
 pub mod ioctl;
