@@ -21,3 +21,16 @@ config DRM_PANTHOR
 
 	  Note that the Mali-G68 and Mali-G78, while Valhall architecture, will
 	  be supported with the panfrost driver as they are not CSF GPUs.
+
+config DRM_PANTHOR_RS
+	bool "Panthor Rust components"
+	depends on DRM_PANTHOR
+	depends on RUST
+	help
+	  Enable Panthor's Rust components
+
+config DRM_PANTHOR_COREDUMP
+	bool "Panthor devcoredump support"
+	depends on DRM_PANTHOR_RS
+	help
+	  Dump the GPU state through devcoredump for debugging purposes

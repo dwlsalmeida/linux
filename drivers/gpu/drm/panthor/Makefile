@@ -11,4 +11,6 @@ panthor-y := \
 	panthor_mmu.o \
 	panthor_sched.o
 
+panthor-$(CONFIG_DRM_PANTHOR_RS) += lib.o
 obj-$(CONFIG_DRM_PANTHOR) += panthor.o
+

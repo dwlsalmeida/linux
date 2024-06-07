@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0 or MIT
 /* Copyright 2023 Collabora ltd. */
 
+#include "drm/drm_gem.h"
+#include "linux/gfp_types.h"
+#include "linux/slab.h"
 #include <drm/drm_drv.h>
 #include <drm/drm_exec.h>
 #include <drm/drm_gem_shmem_helper.h>
@@ -31,6 +34,7 @@
 #include "panthor_mmu.h"
 #include "panthor_regs.h"
 #include "panthor_sched.h"
+#include "panthor_rs.h"
 
 /**
  * DOC: Scheduler
@@ -2937,6 +2941,23 @@ out_unlock:
 
 	return done_fence;
 }
+static void dump_job(struct panthor_device *dev, struct panthor_job *job)
+{
+	struct panthor_vm *vm = job->group->vm;
+	struct drm_gem_object **objs;
+	u32 count;
+
+	objs = panthor_vm_dump(vm, &count);
+
+	struct PanthorDumpArgs args = {
+		.slot = 0, /* TODO*/
+		.bos = *objs,
+		.bo_count = count,
+		.reg_base_addr = dev->iomem,
+	};
+	panthor_core_dump(&args);
+
+}
 
 static enum drm_gpu_sched_stat
 queue_timedout_job(struct drm_sched_job *sched_job)
@@ -2950,6 +2971,7 @@ queue_timedout_job(struct drm_sched_job *sched_job)
 	drm_warn(&ptdev->base, "job timeout\n");
 
 	drm_WARN_ON(&ptdev->base, atomic_read(&sched->reset.in_progress));
+	dump_job(ptdev, job);
 
 	queue_stop(queue, job);
 

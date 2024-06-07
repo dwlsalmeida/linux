@@ -50,6 +50,9 @@ int panthor_vm_add_bos_resvs_deps_to_job(struct panthor_vm *vm,
 void panthor_vm_add_job_fence_to_bos_resvs(struct panthor_vm *vm,
 					   struct drm_sched_job *job);
 
+struct drm_gem_object **
+panthor_vm_dump(struct panthor_vm *vm, u32 *count);
+
 struct dma_resv *panthor_vm_resv(struct panthor_vm *vm);
 struct drm_gem_object *panthor_vm_root_gem(struct panthor_vm *vm);
 

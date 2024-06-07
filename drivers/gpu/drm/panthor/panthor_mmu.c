@@ -2,6 +2,8 @@
 /* Copyright 2019 Linaro, Ltd, Rob Herring <robh@kernel.org> */
 /* Copyright 2023 Collabora ltd. */
 
+#include "drm/drm_gem.h"
+#include "linux/gfp_types.h"
 #include <drm/drm_debugfs.h>
 #include <drm/drm_drv.h>
 #include <drm/drm_exec.h>
@@ -2617,6 +2619,37 @@ int panthor_vm_prepare_mapped_bos_resvs(struct drm_exec *exec, struct panthor_vm
 		return ret;
 
 	return drm_gpuvm_prepare_objects(&vm->base, exec, slot_count);
+}
+
+/**
+ * panthor_vm_bo_dump() - Dump the VM BOs for debugging purposes.
+ *
+ *
+ * @vm: VM targeted by the GPU job.
+ * @count: The number of BOs returned
+ *
+ * Return: an array of pointers to the BOs backing the whole VM.
+ */
+struct drm_gem_object **
+panthor_vm_dump(struct panthor_vm *vm, u32 *count)
+{
+	struct drm_gpuva *va, *next;
+	struct drm_gem_object **objs;
+	*count = 0;
+	u32 i = 0;
+
+	mutex_lock(&vm->op_lock);
+	drm_gpuvm_for_each_va_safe(va, next, &vm->base) {
+		count++;
+	}
+	objs = kcalloc(*count, sizeof(struct drm_gem_object *), GFP_KERNEL);
+	drm_gpuvm_for_each_va_safe(va, next, &vm->base) {
+		objs[i] = va->gem.obj;
+		i++;
+	}
+	mutex_unlock(&vm->op_lock);
+
+	return objs;
 }
 
 /**
